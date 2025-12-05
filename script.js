@@ -35,7 +35,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     console.log('Tentative de connexion pour l\'utilisateur :', username + ' avec le mot de passe :', password);
     message.textContent = '';
     try {
-        const response = await fetch('http://localhost/google-form/login_check.php', {
+        const response = await fetch('http://localhost/google-form/php/login_check.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

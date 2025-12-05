@@ -3,6 +3,14 @@
 
 Application web de gestion de sondages (login, inscription, réponses, affichage dynamique) avec HTML, CSS, JavaScript, PHP, MySQL et Bootstrap.
 
+**Nouveautés récentes :**
+
+- Les endpoints PHP sont désormais dans le dossier `/php` (ex : `/php/login_check.php`).
+- Tous les appels JS utilisent les nouveaux chemins `/php/xxx.php`.
+- Les headers CORS sont présents sur tous les endpoints PHP.
+- La vérification de l'authentification (user_id) se fait côté JavaScript avant tout appel aux questions.
+- Les questions ne sont affichées que si l'utilisateur est connecté (clé `user_id` dans le localStorage).
+
 ## Fonctionnalités principales
 
 - Authentification sécurisée (inscription, login, logout, mot de passe hashé)
@@ -21,7 +29,7 @@ Application web de gestion de sondages (login, inscription, réponses, affichage
 - `questions.html` : Liste des questions et saisie des réponses
 - `style.css` : Styles personnalisés
 - `script.js`, `register.js`, `home.js`, `questions.js` : Logique JS
-- `login_check.php`, `register.php`, `get_sondage.php`, `get_questions.php`, `save_answer.php` : Endpoints PHP
+- `/php/login_check.php`, `/php/register.php`, `/php/get_sondage.php`, `/php/get_questions.php`, `/php/save_answer.php` : Endpoints PHP (tous dans `/php`)
 
 ## Démarrage
 
@@ -41,6 +49,9 @@ Application web de gestion de sondages (login, inscription, réponses, affichage
 - Requêtes préparées partout (anti-injection SQL)
 - Limitation brute-force sur le login
 - Authentification requise pour les actions sensibles
+- Vérification de la connexion côté client (clé `user_id` dans le localStorage)(remplacer le l'appel au local storage par la gestion de token et d'authentification)
+- Les requêtes fetch JS ne partent que si l'utilisateur est authentifié
+- CORS systématique sur tous les endpoints PHP
 
 ## Exemple de connexion
 
