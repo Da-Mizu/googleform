@@ -42,70 +42,79 @@ if (title) {
     titleElem.textContent = title;
 }
 
+
 if (formId) {
-    fetch(`http://localhost/google-form/get_questions.php?form_id=${formId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.length === 0) {
-                const li = document.createElement('li');
-                li.className = 'list-group-item text-warning';
-                li.textContent = 'Aucune question pour ce sondage.';
-                list.appendChild(li);
-            } else {
-                data.forEach(q => {
+    const userId = localStorage.getItem('user_id');
+    if (!userId) {
+        titleElem.textContent = 'Authentification requise';
+        const li = document.createElement('li');
+        li.className = 'list-group-item text-danger';
+        li.textContent = 'Vous devez être connecté pour accéder aux questions.';
+        list.appendChild(li);
+    } else {
+        fetch(`http://localhost/google-form/php/get_questions.php?form_id=${formId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length === 0) {
                     const li = document.createElement('li');
-                    li.className = 'list-group-item';
-                    // Question
-                    const questionDiv = document.createElement('div');
-                    questionDiv.textContent = q.question_text;
-                    li.appendChild(questionDiv);
-                    // Textarea réponse
-                    const textarea = document.createElement('textarea');
-                    textarea.className = 'form-control mt-2';
-                    textarea.rows = 3;
-                    textarea.name = `answer_${q.id}`;
-                    textarea.setAttribute('data-question-id', q.id);
-                    li.appendChild(textarea);
+                    li.className = 'list-group-item text-warning';
+                    li.textContent = 'Aucune question pour ce sondage.';
                     list.appendChild(li);
-                });
-            }
-        })
-        .catch(() => {
-            const li = document.createElement('li');
-            li.className = 'list-group-item text-danger';
-            li.textContent = 'Erreur lors du chargement des questions.';
-            list.appendChild(li);
-        });
-    // Gestion de la soumission du formulaire
-    document.getElementById('answerForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const inputs = document.querySelectorAll('#questionList textarea[data-question-id]');
-        let hasError = false;
-        const userId = localStorage.getItem('user_id') || null;
-        for (const input of inputs) {
-            const answer = input.value.trim();
-            const questionId = input.getAttribute('data-question-id');
-            if (answer) {
-                try {
-                    const response = await fetch('http://localhost/google-form/save_answer.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ question_id: questionId, answer_text: answer, user_id: userId })
+                } else {
+                    data.forEach(q => {
+                        const li = document.createElement('li');
+                        li.className = 'list-group-item';
+                        // Question
+                        const questionDiv = document.createElement('div');
+                        questionDiv.textContent = q.question_text;
+                        li.appendChild(questionDiv);
+                        // Textarea réponse
+                        const textarea = document.createElement('textarea');
+                        textarea.className = 'form-control mt-2';
+                        textarea.rows = 3;
+                        textarea.name = `answer_${q.id}`;
+                        textarea.setAttribute('data-question-id', q.id);
+                        li.appendChild(textarea);
+                        list.appendChild(li);
                     });
-                    console.log('Envoi de la réponse pour la question ID :', questionId, 'Réponse :', answer, 'User ID :', userId);
-                    const result = await response.json();
-                    if (!result.success) hasError = true;
-                } catch {
-                    hasError = true;
+                }
+            })
+            .catch(() => {
+                const li = document.createElement('li');
+                li.className = 'list-group-item text-danger';
+                li.textContent = 'Erreur lors du chargement des questions.';
+                list.appendChild(li);
+            });
+        // Gestion de la soumission du formulaire
+        document.getElementById('answerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const inputs = document.querySelectorAll('#questionList textarea[data-question-id]');
+            let hasError = false;
+            for (const input of inputs) {
+                const answer = input.value.trim();
+                const questionId = input.getAttribute('data-question-id');
+                if (answer) {
+                    try {
+                        const response = await fetch('http://localhost/google-form/php/save_answer.php', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ question_id: questionId, answer_text: answer, user_id: userId })
+                        });
+                        console.log('Envoi de la réponse pour la question ID :', questionId, 'Réponse :', answer, 'User ID :', userId);
+                        const result = await response.json();
+                        if (!result.success) hasError = true;
+                    } catch {
+                        hasError = true;
+                    }
                 }
             }
-        }
-        if (!hasError) {
-            alert('Réponses enregistrées avec succès !');
-        } else {
-            alert('Erreur lors de l\'enregistrement de certaines réponses.');
-        }
-    });
+            if (!hasError) {
+                alert('Réponses enregistrées avec succès !');
+            } else {
+                alert('Erreur lors de l\'enregistrement de certaines réponses.');
+            }
+        });
+    }
 } else {
     titleElem.textContent = 'Sondage inconnu';
     const li = document.createElement('li');

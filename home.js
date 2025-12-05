@@ -30,7 +30,7 @@ renderNavbarUserActions();
 
 const list = document.getElementById('questionnaireList');
 
-fetch('http://localhost/google-form/get_sondage.php')
+fetch('http://localhost/google-form/php/get_sondage.php')
     .then(response => response.json())
     .then(data => {
         data.forEach(sondage => {

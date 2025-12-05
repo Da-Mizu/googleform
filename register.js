@@ -10,7 +10,7 @@ document.getElementById('registerForm').addEventListener('submit', async functio
     const message = document.getElementById('registerMessage');
     message.textContent = '';
     try {
-        const response = await fetch('http://localhost/google-form/register.php', {
+        const response = await fetch('http://localhost/google-form/php/register.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, email, password })

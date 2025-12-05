@@ -43,9 +43,5 @@ $questions = $stmt->fetchAll();
 
 header('Content-Type: application/json');
 // Authentification requise (optionnel)
-if (!isset($_SERVER['HTTP_AUTHORIZATION']) && !isset($_GET['user_id'])) {
-    http_response_code(401);
-    echo json_encode(['error' => 'Authentification requise']);
-    exit;
-}
+// Authentification déléguée au client (localStorage)
 echo json_encode($questions);
