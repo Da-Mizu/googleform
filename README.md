@@ -6,7 +6,8 @@ Application web de gestion de sondages (login, inscription, réponses, affichage
 **Dernières mises à jour :**
 
 - Organisation complète du projet : fichiers HTML dans `/html`, fichiers JS dans `/js`, endpoints PHP dans `/php`
-- Création de sondages : formulaire dynamique avec ajout automatique d'inputs pour les questions
+- **Types de questions** : support des questions à texte libre ET à choix multiple (radio buttons)
+- **Création de sondages** : formulaire dynamique avec ajout automatique de questions et d'options
 - Filtrage intelligent : les sondages auxquels l'utilisateur a déjà répondu ne s'affichent plus dans la liste
 - Redirection automatique vers la liste des sondages après soumission des réponses
 - Envoi sécurisé de `user_id` en POST (body JSON) au lieu de GET (URL)
@@ -16,8 +17,12 @@ Application web de gestion de sondages (login, inscription, réponses, affichage
 ## Fonctionnalités principales
 
 - **Authentification sécurisée** : inscription, login, logout avec mots de passe hashés
-- **Création de sondages** : formulaire dynamique avec ajout automatique de questions
-- **Réponse aux sondages** : affichage des questions et persistance des réponses (liées à l'utilisateur)
+- **Création de sondages** : formulaire dynamique avec choix du type de question (texte libre / choix multiple)
+- **Types de questions** : 
+  - Texte libre avec textarea
+  - Choix multiple avec radio buttons et options personnalisables
+  - Ajout automatique d'inputs pour questions et options (même principe que Google Forms)
+- **Réponse aux sondages** : affichage adapté selon le type de question, persistance des réponses
 - **Filtrage intelligent** : masquage des sondages déjà complétés par l'utilisateur
 - **Limitation des tentatives de login** : système anti-bruteforce avec table `login_attempts`
 - **Protection contre les injections SQL** : requêtes préparées partout
@@ -37,20 +42,25 @@ Application web de gestion de sondages (login, inscription, réponses, affichage
 - `script.js` : Logique d'authentification et login
 - `register.js` : Logique d'inscription
 - `home.js` : Affichage dynamique des sondages (filtrés selon les réponses)
-- `questions.js` : Affichage des questions et soumission des réponses
-- `create_survey.js` : Gestion du formulaire de création (inputs dynamiques)
+- `questions.js` : Affichage adaptatif des questions (textarea / radio) et soumission des réponses
+- `create_survey.js` : Gestion du formulaire de création (inputs dynamiques, types de questions)
 
 ### Endpoints PHP (`/php`)
 - `login_check.php` : Authentification utilisateur avec anti-bruteforce
 - `register.php` : Inscription avec validation et hachage des mots de passe
 - `get_sondage.php` : Récupération de la liste des sondages (filtrés par utilisateur)
-- `get_questions.php` : Récupération des questions d'un sondage
+- `get_questions.php` : Récupération des questions avec type et options (si choix multiple)
 - `save_answer.php` : Enregistrement des réponses aux questions
-- `create_survey.php` : Création de sondages avec questions (transaction SQL)
+- `create_survey.php` : Création de sondages avec questions et options (transaction SQL)
+
+### Base de données
+- `sql/gogoleform.sql` : Structure initiale des tables
+- `sql/migration_question_types.sql` : Migration pour ajouter le support des types de questions et options
+  - Ajout colonne `type` dans la table `question`
+  - Création table `question_option` pour les choix multiples
 
 ### Autres
 - `style.css` : Styles personnalisés
-- `/sql` : Scripts de création et données de la base
 
 ## Démarrage
 
