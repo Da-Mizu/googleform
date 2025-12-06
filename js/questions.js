@@ -5,6 +5,11 @@ function renderNavbarUserActions() {
     navbar.innerHTML = '';
     const userId = localStorage.getItem('user_id');
     if (userId) {
+        const createBtn = document.createElement('a');
+        createBtn.className = 'btn btn-success ms-2';
+        createBtn.textContent = 'Create';
+        createBtn.href = 'create_survey.html';
+        navbar.appendChild(createBtn);
         const logoutBtn = document.createElement('button');
         logoutBtn.className = 'btn btn-outline-light ms-2';
         logoutBtn.textContent = 'Logout';
