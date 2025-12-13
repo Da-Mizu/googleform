@@ -67,8 +67,8 @@ try {
     $stmtQuestions->execute([$form_id]);
     $questions = $stmtQuestions->fetchAll();
     
-    // Pour chaque question, récupérer les réponses
-    $stmtAnswers = $pdo->prepare('SELECT id, user_id, answer_text, answered_at FROM answer WHERE question_id = ? ORDER BY answered_at DESC');
+    // Pour chaque question, récupérer les réponses avec le username
+    $stmtAnswers = $pdo->prepare('SELECT a.id, a.user_id, u.username, a.answer_text, a.answered_at FROM answer a LEFT JOIN user u ON a.user_id = u.id WHERE a.question_id = ? ORDER BY a.answered_at DESC');
     
     foreach ($questions as &$question) {
         $stmtAnswers->execute([$question['id']]);
@@ -78,6 +78,7 @@ try {
         if (isset($question['anonymus']) && intval($question['anonymus']) === 1) {
             foreach ($answers as &$answer) {
                 $answer['user_id'] = null;
+                $answer['username'] = null;
                 $answer['user_masked'] = true;
             }
         } else {

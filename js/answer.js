@@ -103,21 +103,23 @@ function renderAnswers(questions) {
         cardBody.className = 'card-body';
         
         if (question.answers && question.answers.length > 0) {
-            // Créer le camembert (même pour les questions anonymes)
-            const chartContainer = document.createElement('div');
-            chartContainer.className = 'mb-4';
-            chartContainer.style.maxWidth = '400px';
-            chartContainer.style.margin = '0 auto';
-            
-            const canvas = document.createElement('canvas');
-            canvas.id = `chart-${index}`;
-            chartContainer.appendChild(canvas);
-            cardBody.appendChild(chartContainer);
-            
-            // Créer le camembert après l'insertion dans le DOM
-            setTimeout(() => {
-                createPieChart(`chart-${index}`, question.answers);
-            }, 100);
+            // Créer le camembert uniquement pour les questions à choix multiple
+            if (question.type === 'multiple') {
+                const chartContainer = document.createElement('div');
+                chartContainer.className = 'mb-4';
+                chartContainer.style.maxWidth = '400px';
+                chartContainer.style.margin = '0 auto';
+                
+                const canvas = document.createElement('canvas');
+                canvas.id = `chart-${index}`;
+                chartContainer.appendChild(canvas);
+                cardBody.appendChild(chartContainer);
+                
+                // Créer le camembert après l'insertion dans le DOM
+                setTimeout(() => {
+                    createPieChart(`chart-${index}`, question.answers);
+                }, 100);
+            }
             
             // Afficher aussi la liste des réponses
             const answersList = document.createElement('ul');
@@ -130,20 +132,22 @@ function renderAnswers(questions) {
                 if (answer.user_masked) {
                     // Question anonyme : afficher la réponse mais masquer l'utilisateur
                     answerItem.innerHTML = `
+                        <strong>Utilisateur:</strong> <span class="fst-italic">Anonyme</span>
+                        <br>
                         <strong>Réponse:</strong> ${answer.answer_text || '<em class="text-muted">Aucune réponse</em>'}
                         <br>
                         <small class="text-muted">
-                            Utilisateur: <span class="fst-italic">Anonyme</span> | 
                             ${new Date(answer.answered_at).toLocaleString('fr-FR')}
                         </small>
                     `;
                 } else {
                     // Question normale : afficher tout
                     answerItem.innerHTML = `
+                        <strong>Utilisateur:</strong> ${answer.username || 'Inconnu'}
+                        <br>
                         <strong>Réponse:</strong> ${answer.answer_text || '<em class="text-muted">Aucune réponse</em>'}
                         <br>
                         <small class="text-muted">
-                            Utilisateur ID: ${answer.user_id || 'Inconnu'} | 
                             ${new Date(answer.answered_at).toLocaleString('fr-FR')}
                         </small>
                     `;
