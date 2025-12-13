@@ -10,6 +10,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const answerTitle = document.getElementById('answerTitle');
     const answerMessage = document.getElementById('answerMessage');
     const answersContainer = document.getElementById('answersContainer');
+    const usernameSearch = document.getElementById('usernameSearch');
+    
+    // Variable globale pour stocker les données
+    window.allQuestionsData = [];
+    
+    // Écouteur pour la recherche
+    if (usernameSearch) {
+        usernameSearch.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            renderAnswers(window.allQuestionsData, searchTerm);
+        });
+    } else {
+        console.error('usernameSearch element not found');
+    }
     
     // Vérifier que l'utilisateur est connecté
     if (!userId) {
@@ -67,9 +81,10 @@ async function loadAnswers(formId, userId) {
             // Afficher le titre du formulaire
             answerTitle.textContent = `Réponses - ${data.form_title}`;
             
-            // Afficher les questions et réponses
+            // Stocker et afficher les questions et réponses
             if (data.questions && data.questions.length > 0) {
-                renderAnswers(data.questions);
+                window.allQuestionsData = data.questions;
+                renderAnswers(window.allQuestionsData, '');
             } else {
                 answersContainer.innerHTML = '<p class="text-muted">Aucune question dans ce formulaire.</p>';
             }
@@ -77,12 +92,12 @@ async function loadAnswers(formId, userId) {
             showError(data.error || 'Erreur lors du chargement des réponses.');
         }
     } catch (error) {
-        console.error('Erreur:', error);
+        console.log('Erreur:', error);
         showError('Erreur de connexion au serveur.');
     }
 }
 
-function renderAnswers(questions) {
+function renderAnswers(questions, searchTerm = '') {
     const answersContainer = document.getElementById('answersContainer');
     answersContainer.innerHTML = '';
     
@@ -94,7 +109,7 @@ function renderAnswers(questions) {
         cardHeader.className = 'card-header';
         cardHeader.innerHTML = `
             <h5 class="mb-0">
-                Question ${index + 1} : ${question.question_text}
+                Question ${index + 1}: ${question.question_text}
                 ${question.anonymus == 1 ? '<span class="badge bg-secondary ms-2">Anonyme</span>' : ''}
             </h5>
         `;
@@ -103,8 +118,16 @@ function renderAnswers(questions) {
         cardBody.className = 'card-body';
         
         if (question.answers && question.answers.length > 0) {
+            // Filtrer les réponses selon le terme de recherche
+            const filteredAnswers = searchTerm 
+                ? question.answers.filter(answer => {
+                    const username = answer.username || '';
+                    return username.toLowerCase().includes(searchTerm);
+                })
+                : question.answers;
+            
             // Créer le camembert uniquement pour les questions à choix multiple
-            if (question.type === 'multiple') {
+            if (question.type === 'multiple' && filteredAnswers.length > 0) {
                 const chartContainer = document.createElement('div');
                 chartContainer.className = 'mb-4';
                 chartContainer.style.maxWidth = '400px';
@@ -117,46 +140,50 @@ function renderAnswers(questions) {
                 
                 // Créer le camembert après l'insertion dans le DOM
                 setTimeout(() => {
-                    createPieChart(`chart-${index}`, question.answers);
+                    createPieChart(`chart-${index}`, filteredAnswers);
                 }, 100);
             }
             
-            // Afficher aussi la liste des réponses
-            const answersList = document.createElement('ul');
-            answersList.className = 'list-group list-group-flush';
-            
-            question.answers.forEach(answer => {
-                const answerItem = document.createElement('li');
-                answerItem.className = 'list-group-item';
+            // Afficher la liste des réponses filtrées
+            if (filteredAnswers.length > 0) {
+                const answersList = document.createElement('ul');
+                answersList.className = 'list-group list-group-flush';
                 
-                if (answer.user_masked) {
-                    // Question anonyme : afficher la réponse mais masquer l'utilisateur
-                    answerItem.innerHTML = `
-                        <strong>Utilisateur:</strong> <span class="fst-italic">Anonyme</span>
-                        <br>
-                        <strong>Réponse:</strong> ${answer.answer_text || '<em class="text-muted">Aucune réponse</em>'}
-                        <br>
-                        <small class="text-muted">
-                            ${new Date(answer.answered_at).toLocaleString('fr-FR')}
-                        </small>
-                    `;
-                } else {
-                    // Question normale : afficher tout
-                    answerItem.innerHTML = `
-                        <strong>Utilisateur:</strong> ${answer.username || 'Inconnu'}
-                        <br>
-                        <strong>Réponse:</strong> ${answer.answer_text || '<em class="text-muted">Aucune réponse</em>'}
-                        <br>
-                        <small class="text-muted">
-                            ${new Date(answer.answered_at).toLocaleString('fr-FR')}
-                        </small>
-                    `;
-                }
+                filteredAnswers.forEach(answer => {
+                    const answerItem = document.createElement('li');
+                    answerItem.className = 'list-group-item';
+                    
+                    if (answer.user_masked) {
+                        // Question anonyme : afficher la réponse mais masquer l'utilisateur
+                        answerItem.innerHTML = `
+                            <strong>Utilisateur:</strong> <span class="fst-italic">Anonyme</span>
+                            <br>
+                            <strong>Réponse:</strong> ${answer.answer_text || '<em class="text-muted">Aucune réponse</em>'}
+                            <br>
+                            <small class="text-muted">
+                                ${new Date(answer.answered_at).toLocaleString('fr-FR')}
+                            </small>
+                        `;
+                    } else {
+                        // Question normale : afficher tout
+                        answerItem.innerHTML = `
+                            <strong>Utilisateur:</strong> ${answer.username || 'Inconnu'}
+                            <br>
+                            <strong>Réponse:</strong> ${answer.answer_text || '<em class="text-muted">Aucune réponse</em>'}
+                            <br>
+                            <small class="text-muted">
+                                ${new Date(answer.answered_at).toLocaleString('fr-FR')}
+                            </small>
+                        `;
+                    }
+                    
+                    answersList.appendChild(answerItem);
+                });
                 
-                answersList.appendChild(answerItem);
-            });
-            
-            cardBody.appendChild(answersList);
+                cardBody.appendChild(answersList);
+            } else {
+                cardBody.innerHTML = '<p class="text-muted mb-0">Aucune réponse correspondante.</p>';
+            }
         } else {
             cardBody.innerHTML = '<p class="text-muted mb-0">Aucune réponse pour cette question.</p>';
         }
@@ -250,3 +277,122 @@ function createPieChart(canvasId, answers) {
         }
     });
 }
+
+// Fonction pour télécharger en CSV
+function downloadCSV() {
+    if (!window.allQuestionsData || window.allQuestionsData.length === 0) {
+        alert('Aucune donnée à télécharger.');
+        return;
+    }
+    
+    const formTitle = document.getElementById('answerTitle').textContent.replace('Réponses - ', '');
+    let csv = `Sondage: ${formTitle}\n\n`;
+    
+    window.allQuestionsData.forEach((question, qIndex) => {
+        csv += `Question ${qIndex + 1}: ${question.question_text}\n`;
+        csv += `Type: ${question.type === 'multiple' ? 'Choix multiple' : 'Texte'}\n`;
+        csv += `Anonyme: ${question.anonymus == 1 ? 'Oui' : 'Non'}\n`;
+        csv += `Utilisateur,Réponse,Date\n`;
+        
+        if (question.answers && question.answers.length > 0) {
+            question.answers.forEach(answer => {
+                const username = answer.username || 'Anonyme';
+                const answerText = (answer.answer_text || '').replace(/,/g, ';');
+                const date = new Date(answer.answered_at).toLocaleString('fr-FR');
+                csv += `"${username}","${answerText}","${date}"\n`;
+            });
+        }
+        csv += `\n`;
+    });
+    
+    // Créer et télécharger le fichier
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `Rapport ${formTitle}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+// Fonction pour télécharger en PDF
+function downloadPDF() {
+    if (!window.allQuestionsData || window.allQuestionsData.length === 0) {
+        alert('Aucune donnée à télécharger.');
+        return;
+    }
+    
+    const formTitle = document.getElementById('answerTitle').textContent.replace('Réponses - ', '');
+    let html = `
+        <div style="font-family: Arial, sans-serif; padding: 20px;">
+            <h1>${formTitle}</h1>
+            <p><strong>Date:</strong> ${new Date().toLocaleString('fr-FR')}</p>
+            <hr>
+    `;
+    
+    window.allQuestionsData.forEach((question, qIndex) => {
+        html += `
+            <div style="margin-bottom: 30px; page-break-inside: avoid;">
+                <h2 style="font-size: 16px; margin-bottom: 10px;">Question ${qIndex + 1}: ${question.question_text}</h2>
+                <p style="margin: 5px 0; font-size: 12px;">
+                    <strong>Type:</strong> ${question.type === 'multiple' ? 'Choix multiple' : 'Texte'} | 
+                    <strong>Anonyme:</strong> ${question.anonymus == 1 ? 'Oui' : 'Non'}
+                </p>
+        `;
+        
+        if (question.answers && question.answers.length > 0) {
+            html += '<table style="width: 100%; border-collapse: collapse; margin-top: 10px;">';
+            html += '<tr style="background-color: #f0f0f0;">';
+            html += '<th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Utilisateur</th>';
+            html += '<th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Réponse</th>';
+            html += '<th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Date</th>';
+            html += '</tr>';
+            
+            question.answers.forEach(answer => {
+                const username = answer.username || 'Anonyme';
+                const answerText = answer.answer_text || '-';
+                const date = new Date(answer.answered_at).toLocaleString('fr-FR');
+                html += '<tr>';
+                html += `<td style="border: 1px solid #ddd; padding: 8px;">${username}</td>`;
+                html += `<td style="border: 1px solid #ddd; padding: 8px;">${answerText}</td>`;
+                html += `<td style="border: 1px solid #ddd; padding: 8px; font-size: 12px;">${date}</td>`;
+                html += '</tr>';
+            });
+            html += '</table>';
+        } else {
+            html += '<p style="color: #999; font-style: italic;">Aucune réponse pour cette question.</p>';
+        }
+        html += '</div>';
+    });
+    
+    html += '</div>';
+    
+    const element = document.createElement('div');
+    element.innerHTML = html;
+    
+    const opt = {
+        margin: 10,
+        filename: `Rapport ${formTitle}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+    };
+    
+    html2pdf().set(opt).from(element).save();
+}
+
+// Ajouter les écouteurs pour les boutons
+document.addEventListener('DOMContentLoaded', () => {
+    const downloadCsvBtn = document.getElementById('downloadCsv');
+    const downloadPdfBtn = document.getElementById('downloadPdf');
+    
+    if (downloadCsvBtn) {
+        downloadCsvBtn.addEventListener('click', downloadCSV);
+    }
+    
+    if (downloadPdfBtn) {
+        downloadPdfBtn.addEventListener('click', downloadPDF);
+    }
+});

@@ -25,14 +25,32 @@ fetch('http://localhost/google-form/php/get_sondage.php', {
             
             // Colonne gauche : titre et description
             const leftDiv = document.createElement('div');
-            leftDiv.style.cursor = 'pointer';
             leftDiv.style.flex = '1';
             
-            // Titre
-            const title = document.createElement('div');
+            // Vérifier si le sondage a déjà été répondu
+            const hasAnswered = sondage.answered == 1;
+            
+            if (!hasAnswered) {
+                leftDiv.style.cursor = 'pointer';
+            }
+            
+            // Titre avec badge si déjà répondu
+            const titleContainer = document.createElement('div');
+            titleContainer.className = 'd-flex align-items-center gap-2';
+            
+            const title = document.createElement('span');
             title.textContent = sondage.title;
             title.className = 'fw-bold';
-            leftDiv.appendChild(title);
+            titleContainer.appendChild(title);
+            
+            if (hasAnswered) {
+                const badge = document.createElement('span');
+                badge.className = 'badge bg-success';
+                badge.textContent = 'Déjà répondu';
+                titleContainer.appendChild(badge);
+            }
+            
+            leftDiv.appendChild(titleContainer);
             
             // Description
             if (sondage.description) {
@@ -44,6 +62,10 @@ fetch('http://localhost/google-form/php/get_sondage.php', {
             
             // Clic sur le titre/description pour aller aux questions
             leftDiv.addEventListener('click', () => {
+                if (hasAnswered) {
+                    alert('Vous avez déjà répondu à ce sondage.');
+                    return;
+                }
                 window.location.href = `questions.html?form_id=${sondage.id}&title=${encodeURIComponent(sondage.title)}`;
             });
             
