@@ -59,9 +59,9 @@ try {
     // Démarrer une transaction
     $pdo->beginTransaction();
 
-    // Insérer le sondage dans la table form
-    $stmt = $pdo->prepare('INSERT INTO form (title, description) VALUES (?, ?)');
-    $stmt->execute([$title, $description]);
+    // Insérer le sondage dans la table form avec user_id
+    $stmt = $pdo->prepare('INSERT INTO form (title, description, user_id) VALUES (?, ?, ?)');
+    $stmt->execute([$title, $description, $user_id]);
     $form_id = $pdo->lastInsertId();
 
     // Insérer chaque question dans la table question

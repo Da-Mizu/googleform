@@ -94,7 +94,7 @@ function renderAnswers(questions) {
         cardHeader.className = 'card-header';
         cardHeader.innerHTML = `
             <h5 class="mb-0">
-                Question ${index + 1}: ${question.question_text}
+                Question ${index + 1} : ${question.question_text}
                 ${question.anonymus == 1 ? '<span class="badge bg-secondary ms-2">Anonyme</span>' : ''}
             </h5>
         `;

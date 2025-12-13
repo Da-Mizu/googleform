@@ -33,24 +33,9 @@ try {
 $input = json_decode(file_get_contents('php://input'), true);
 $user_id = isset($input['user_id']) ? intval($input['user_id']) : null;
 
-if ($user_id) {
-    // Récupérer uniquement les sondages auxquels l'utilisateur n'a pas encore répondu
-    $stmt = $pdo->prepare('
-        SELECT DISTINCT f.id, f.title, f.description, f.user_id 
-        FROM form f
-        WHERE f.id NOT IN (
-            SELECT DISTINCT q.form_id 
-            FROM answer a
-            JOIN question q ON a.question_id = q.id
-            WHERE a.user_id = ?
-        )
-    ');
-    $stmt->execute([$user_id]);
-} else {
-    // Si pas d'utilisateur, retourner tous les sondages
-    $stmt = $pdo->prepare('SELECT id, title, description, user_id FROM form');
-    $stmt->execute();
-}
+// Récupérer tous les sondages avec user_id
+$stmt = $pdo->prepare('SELECT id, title, description, user_id FROM form');
+$stmt->execute();
 $sondages = $stmt->fetchAll();
 
 header('Content-Type: application/json');
