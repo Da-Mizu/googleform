@@ -74,16 +74,15 @@ try {
         $stmtAnswers->execute([$question['id']]);
         $answers = $stmtAnswers->fetchAll();
         
-        // Si la question est anonyme, masquer les informations utilisateur
+        // Si la question est anonyme, masquer uniquement l'identité de l'utilisateur
         if (isset($question['anonymus']) && intval($question['anonymus']) === 1) {
             foreach ($answers as &$answer) {
-                $answer['answer_text'] = null;
                 $answer['user_id'] = null;
-                $answer['masked'] = true;
+                $answer['user_masked'] = true;
             }
         } else {
             foreach ($answers as &$answer) {
-                $answer['masked'] = false;
+                $answer['user_masked'] = false;
             }
         }
         

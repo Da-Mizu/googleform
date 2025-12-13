@@ -103,26 +103,21 @@ function renderAnswers(questions) {
         cardBody.className = 'card-body';
         
         if (question.answers && question.answers.length > 0) {
-            // Vérifier si on peut créer un camembert
-            const canCreatePieChart = !question.answers.some(a => a.masked) && question.answers.length > 0;
+            // Créer le camembert (même pour les questions anonymes)
+            const chartContainer = document.createElement('div');
+            chartContainer.className = 'mb-4';
+            chartContainer.style.maxWidth = '400px';
+            chartContainer.style.margin = '0 auto';
             
-            if (canCreatePieChart) {
-                // Créer le conteneur du graphique
-                const chartContainer = document.createElement('div');
-                chartContainer.className = 'mb-4';
-                chartContainer.style.maxWidth = '400px';
-                chartContainer.style.margin = '0 auto';
-                
-                const canvas = document.createElement('canvas');
-                canvas.id = `chart-${index}`;
-                chartContainer.appendChild(canvas);
-                cardBody.appendChild(chartContainer);
-                
-                // Créer le camembert après l'insertion dans le DOM
-                setTimeout(() => {
-                    createPieChart(`chart-${index}`, question.answers);
-                }, 100);
-            }
+            const canvas = document.createElement('canvas');
+            canvas.id = `chart-${index}`;
+            chartContainer.appendChild(canvas);
+            cardBody.appendChild(chartContainer);
+            
+            // Créer le camembert après l'insertion dans le DOM
+            setTimeout(() => {
+                createPieChart(`chart-${index}`, question.answers);
+            }, 100);
             
             // Afficher aussi la liste des réponses
             const answersList = document.createElement('ul');
@@ -132,12 +127,18 @@ function renderAnswers(questions) {
                 const answerItem = document.createElement('li');
                 answerItem.className = 'list-group-item';
                 
-                if (answer.masked) {
+                if (answer.user_masked) {
+                    // Question anonyme : afficher la réponse mais masquer l'utilisateur
                     answerItem.innerHTML = `
-                        <span class="text-muted fst-italic">[Réponse anonyme masquée]</span>
-                        <small class="text-muted ms-2">(${new Date(answer.answered_at).toLocaleString('fr-FR')})</small>
+                        <strong>Réponse:</strong> ${answer.answer_text || '<em class="text-muted">Aucune réponse</em>'}
+                        <br>
+                        <small class="text-muted">
+                            Utilisateur: <span class="fst-italic">Anonyme</span> | 
+                            ${new Date(answer.answered_at).toLocaleString('fr-FR')}
+                        </small>
                     `;
                 } else {
+                    // Question normale : afficher tout
                     answerItem.innerHTML = `
                         <strong>Réponse:</strong> ${answer.answer_text || '<em class="text-muted">Aucune réponse</em>'}
                         <br>
