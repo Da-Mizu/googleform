@@ -134,14 +134,14 @@ document.getElementById('createSurveyForm').addEventListener('submit', async fun
     
     questionBlocks.forEach(block => {
         const questionText = block.querySelector('.question-field').value.trim();
+        const questionType = block.querySelector('.question-type').value;
         const isAnonymous = block.querySelector('.question-anonymous').checked;
         
         if (questionText !== '') {
             const questionData = {
                 question_text: questionText,
                 type: questionType,
-                anonymus: isAnonymous ? 1 : 0stionText,
-                type: questionType
+                anonymus: isAnonymous ? 1 : 0
             };
             
             // Si c'est un choix multiple, récupérer les options non vides

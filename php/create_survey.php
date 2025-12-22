@@ -59,21 +59,22 @@ try {
     // Démarrer une transaction
     $pdo->beginTransaction();
 
-    // Insérer le sondage dans la table form avec user_id
+    // Insérer le sondage dans la table form
     $stmt = $pdo->prepare('INSERT INTO form (title, description, user_id) VALUES (?, ?, ?)');
     $stmt->execute([$title, $description, $user_id]);
     $form_id = $pdo->lastInsertId();
 
     // Insérer chaque question dans la table question
-    $stmtQuestion = $pdo->prepare('INSERT INTO question (form_id, question_text, type) VALUES (?, ?, ?)');
+    $stmtQuestion = $pdo->prepare('INSERT INTO question (form_id, question_text, type, anonymus) VALUES (?, ?, ?, ?)');
     $stmtOption = $pdo->prepare('INSERT INTO question_option (question_id, option_text) VALUES (?, ?)');
 
     foreach ($questions as $question) {
         $question_text = trim($question['question_text']);
         $question_type = isset($question['type']) ? $question['type'] : 'text';
+        $question_anonymus = isset($question['anonymus']) ? intval($question['anonymus']) : 0;
 
         if (!empty($question_text)) {
-            $stmtQuestion->execute([$form_id, $question_text, $question_type]);
+            $stmtQuestion->execute([$form_id, $question_text, $question_type, $question_anonymus]);
             $question_id = $pdo->lastInsertId();
 
             // Si c'est un choix multiple, insérer les options
@@ -103,3 +104,5 @@ try {
     http_response_code(500);
     echo json_encode(['error' => 'Erreur lors de la création du sondage']);
 }
+
+//test commen
