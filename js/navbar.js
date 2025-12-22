@@ -37,6 +37,15 @@ function renderNavbarUserActions() {
             createBtn.href = 'create_survey.html';
             navbar.appendChild(createBtn);
         }
+
+        // Bouton Share (sauf sur la page de partage)
+        if (!window.location.pathname.includes('share_survey.html')) {
+            const shareBtn = document.createElement('a');
+            shareBtn.className = 'btn btn-warning ms-2 text-dark';
+            shareBtn.textContent = 'Share';
+            shareBtn.href = 'share_survey.html';
+            navbar.appendChild(shareBtn);
+        }
         
         // Bouton Logout
         const logoutBtn = document.createElement('button');

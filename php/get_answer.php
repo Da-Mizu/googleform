@@ -45,7 +45,7 @@ if (!$user_id || $user_id <= 0) {
 }
 
 try {
-    // Vérifier que l'utilisateur est le propriétaire du formulaire
+    // Vérifier que l'utilisateur est le propriétaire ou possède un accès partagé view/admin
     $stmtOwner = $pdo->prepare('SELECT user_id, title FROM form WHERE id = ?');
     $stmtOwner->execute([$form_id]);
     $form = $stmtOwner->fetch();
@@ -55,10 +55,20 @@ try {
         echo json_encode(['error' => 'Formulaire introuvable']);
         exit;
     }
-    
-    if (intval($form['user_id']) !== $user_id) {
+
+    $isOwner = intval($form['user_id']) === $user_id;
+    $hasShared = false;
+
+    if (!$isOwner) {
+        $stmtAccess = $pdo->prepare('SELECT access_type FROM survey_access WHERE form_id = ? AND user_id = ? AND access_type IN ("view","admin")');
+        $stmtAccess->execute([$form_id, $user_id]);
+        $shared = $stmtAccess->fetch();
+        $hasShared = $shared !== false;
+    }
+
+    if (!$isOwner && !$hasShared) {
         http_response_code(403);
-        echo json_encode(['error' => 'Accès refusé : seul le créateur peut voir les réponses']);
+        echo json_encode(['error' => 'Accès refusé : seul le créateur ou un utilisateur avec accès view/admin peut voir les réponses']);
         exit;
     }
     
