@@ -35,7 +35,15 @@
           <h4 class="mb-3">Questions</h4>
           <div id="questionsContainer">
             <div class="mb-4 question-block border p-3 rounded">
-              <label class="form-label fw-bold">Question 1</label>
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <label class="form-label fw-bold mb-0">Question 1</label>
+                <div class="form-check d-flex align-items-center gap-2">
+                  <input class="form-check-input question-anonymous" type="checkbox" id="anonymous1" />
+                  <label class="form-check-label mb-0" for="anonymous1">
+                    Rendre cette question anonyme
+                  </label>
+                </div>
+              </div>
               <input
                 type="text"
                 class="form-control mb-2 question-field"
@@ -62,7 +70,15 @@
               </div>
             </div>
             <div class="mb-4 question-block border p-3 rounded">
-              <label class="form-label fw-bold">Question 2</label>
+              <div class="d-flex align-items-center justify-content-between mb-3">
+                <label class="form-label fw-bold mb-0">Question 2</label>
+                <div class="form-check d-flex align-items-center gap-2">
+                  <input class="form-check-input question-anonymous" type="checkbox" id="anonymous2" />
+                  <label class="form-check-label mb-0" for="anonymous2">
+                    Rendre cette question anonyme
+                  </label>
+                </div>
+              </div>
               <input
                 type="text"
                 class="form-control mb-2 question-field"

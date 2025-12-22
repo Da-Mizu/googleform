@@ -51,9 +51,24 @@ function checkAndAddQuestionBlock() {
         const newBlock = document.createElement('div');
         newBlock.className = 'mb-4 question-block border p-3 rounded';
         
+        const headerDiv = document.createElement('div');
+        headerDiv.className = 'd-flex align-items-center justify-content-between mb-3';
+        
         const newLabel = document.createElement('label');
-        newLabel.className = 'form-label fw-bold';
+        newLabel.className = 'form-label fw-bold mb-0';
         newLabel.textContent = `Question ${allQuestions.length + 1}`;
+        
+        const anonymousDiv = document.createElement('div');
+        anonymousDiv.className = 'form-check d-flex align-items-center gap-2';
+        anonymousDiv.innerHTML = `
+            <input class="form-check-input question-anonymous" type="checkbox" id="anonymous${allQuestions.length}" />
+            <label class="form-check-label mb-0" for="anonymous${allQuestions.length}">
+                Rendre cette question anonyme
+            </label>
+        `;
+        
+        headerDiv.appendChild(newLabel);
+        headerDiv.appendChild(anonymousDiv);
         
         const newInput = document.createElement('input');
         newInput.type = 'text';
@@ -78,7 +93,7 @@ function checkAndAddQuestionBlock() {
             </div>
         `;
         
-        newBlock.appendChild(newLabel);
+        newBlock.appendChild(headerDiv);
         newBlock.appendChild(newInput);
         newBlock.appendChild(newSelect);
         newBlock.appendChild(optionsContainer);
@@ -119,11 +134,13 @@ document.getElementById('createSurveyForm').addEventListener('submit', async fun
     
     questionBlocks.forEach(block => {
         const questionText = block.querySelector('.question-field').value.trim();
-        const questionType = block.querySelector('.question-type').value;
+        const isAnonymous = block.querySelector('.question-anonymous').checked;
         
         if (questionText !== '') {
             const questionData = {
                 question_text: questionText,
+                type: questionType,
+                anonymus: isAnonymous ? 1 : 0stionText,
                 type: questionType
             };
             
