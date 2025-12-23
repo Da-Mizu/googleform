@@ -49,8 +49,16 @@ Application web de gestion de sondages (inscription, connexion, création de son
 - `register.php` : inscription avec validation et hachage des mots de passe.
 - `get_sondage.php` : récupération de la liste des sondages (filtrée par utilisateur).
 - `get_questions.php` : récupération des questions avec type et options (pour choix multiple).
+- `get_answer.php` : récupération des réponses d’un sondage / d’une question (pour affichage ou export).
 - `save_answer.php` : enregistrement des réponses aux sondages.
 - `create_survey.php` : création de sondages avec questions et options (utilisation de transaction SQL).
+- `delete_survey.php` : suppression d’un sondage (propriétaire uniquement).
+- `delete_survey_access.php` : suppression d’un accès/permission de partage.
+- `get_survey_access.php` : récupération des permissions/partages d’un sondage.
+- `share_survey.php` : partage d’un sondage avec d’autres utilisateurs (création d’accès).
+- `list_forms_owned.php` : liste des sondages possédés par l’utilisateur (gestion propriétaire).
+
+> Remarque : les endpoints d’API effectuent des vérifications d’authentification et renvoient des headers CORS selon le contexte.
 
 ### Base de données
 - `sql/gogoleform.sql` : structure initiale des tables.
