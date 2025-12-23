@@ -1,96 +1,95 @@
-
 # Google Form Clone
 
-Application web de gestion de sondages (login, inscription, réponses, affichage dynamique, création de sondages) avec HTML, CSS, JavaScript, PHP, MySQL et Bootstrap.
+Application web de gestion de sondages (inscription, connexion, création de sondages, réponses, affichage dynamique) réalisée avec HTML, CSS, JavaScript, PHP, MySQL et Bootstrap.
 
 **Dernières mises à jour :**
 
-- Organisation complète du projet : fichiers HTML dans `/html`, fichiers JS dans `/js`, endpoints PHP dans `/php`
-- **Types de questions** : support des questions à texte libre ET à choix multiple (radio buttons)
-- **Création de sondages** : formulaire dynamique avec ajout automatique de questions et d'options
-- Filtrage intelligent : les sondages auxquels l'utilisateur a déjà répondu ne s'affichent plus dans la liste
-- Redirection automatique vers la liste des sondages après soumission des réponses
-- Envoi sécurisé de `user_id` en POST (body JSON) au lieu de GET (URL)
-- Headers CORS présents sur tous les endpoints PHP
-- Vérification de l'authentification côté JavaScript avant les appels sensibles
+- Réorganisation du projet : fichiers HTML dans `/html`, JS dans `/js`, endpoints PHP dans `/php`.
+- Support des types de questions : texte libre et choix multiple (radio).
+- Création de sondages : formulaire dynamique avec ajout automatique de questions et options.
+- Filtrage des sondages déjà complétés par l’utilisateur.
+- Redirection automatique vers la liste des sondages après soumission des réponses.
+- Envoi sécurisé du `user_id` en POST (corps JSON) au lieu de GET (URL).
+- Headers CORS présents sur tous les endpoints PHP.
+- Vérification d’authentification côté client avant les appels sensibles.
 
 ## Fonctionnalités principales
 
-- **Authentification sécurisée** : inscription, login, logout avec mots de passe hashés
-- **Création de sondages** : formulaire dynamique avec choix du type de question (texte libre / choix multiple)
-- **Types de questions** : 
-  - Texte libre avec textarea
-  - Choix multiple avec radio buttons et options personnalisables
-  - Ajout automatique d'inputs pour questions et options (même principe que Google Forms)
-- **Réponse aux sondages** : affichage adapté selon le type de question, persistance des réponses
-- **Filtrage intelligent** : masquage des sondages déjà complétés par l'utilisateur
-- **Limitation des tentatives de login** : système anti-bruteforce avec table `login_attempts`
-- **Protection contre les injections SQL** : requêtes préparées partout
-- **Navbar dynamique** : boutons adaptés selon l'état de connexion (Create, Logout, Register, Login)
-- **Redirection automatique** : retour à la liste après soumission de réponses
+- Authentification : inscription, connexion et déconnexion avec mots de passe hachés.
+- Création de sondages : interface dynamique permettant de sélectionner le type de question (texte libre / choix multiple) et d’ajouter des options.
+- Types de questions :
+  - Texte libre (textarea).
+  - Choix multiple (radio buttons) avec options personnalisables.
+  - Ajout automatique d’inputs pour questions et options (principe similaire à Google Forms).
+- Réponses aux sondages : affichage adapté selon le type de question et persistance en base.
+- Filtrage intelligent : masquage des sondages déjà complétés par l’utilisateur.
+- Protection anti-bruteforce : limitation des tentatives de connexion via la table `login_attempts`.
+- Protection contre les injections SQL : utilisation de requêtes préparées.
+- Navbar dynamique : boutons affichés selon l’état de connexion (Create, Logout, Register, Login).
+- Transactions SQL utilisées lors de la création de sondages pour garantir la cohérence.
 
 ## Structure du projet
 
 ### Fichiers HTML (`/html`)
-- `index.html` : Formulaire de login
-- `register.html` : Formulaire d'inscription
-- `home.html` : Liste des sondages disponibles
-- `questions.html` : Affichage des questions et saisie des réponses
-- `create_survey.html` : Création de nouveaux sondages (utilisateurs connectés)
+- `index.html` : page de connexion.
+- `register.html` : page d’inscription.
+- `home.html` : liste des sondages disponibles.
+- `questions.html` : affichage des questions et formulaire de réponses.
+- `create_survey.html` : interface de création de sondages (utilisateurs connectés).
 
 ### Fichiers JavaScript (`/js`)
-- `script.js` : Logique d'authentification et login
-- `register.js` : Logique d'inscription
-- `home.js` : Affichage dynamique des sondages (filtrés selon les réponses)
-- `questions.js` : Affichage adaptatif des questions (textarea / radio) et soumission des réponses
-- `create_survey.js` : Gestion du formulaire de création (inputs dynamiques, types de questions)
+- `script.js` : logique d’authentification et gestion du login.
+- `register.js` : logique d’inscription.
+- `home.js` : affichage dynamique et filtrage des sondages.
+- `questions.js` : rendu adaptatif des questions et envoi des réponses.
+- `create_survey.js` : gestion du formulaire de création (inputs dynamiques, types de question).
 
 ### Endpoints PHP (`/php`)
-- `login_check.php` : Authentification utilisateur avec anti-bruteforce
-- `register.php` : Inscription avec validation et hachage des mots de passe
-- `get_sondage.php` : Récupération de la liste des sondages (filtrés par utilisateur)
-- `get_questions.php` : Récupération des questions avec type et options (si choix multiple)
-- `save_answer.php` : Enregistrement des réponses aux questions
-- `create_survey.php` : Création de sondages avec questions et options (transaction SQL)
+- `login_check.php` : authentification utilisateur avec anti‑bruteforce.
+- `register.php` : inscription avec validation et hachage des mots de passe.
+- `get_sondage.php` : récupération de la liste des sondages (filtrée par utilisateur).
+- `get_questions.php` : récupération des questions avec type et options (pour choix multiple).
+- `save_answer.php` : enregistrement des réponses aux sondages.
+- `create_survey.php` : création de sondages avec questions et options (utilisation de transaction SQL).
 
 ### Base de données
-- `sql/gogoleform.sql` : Structure initiale des tables
-- `sql/migration_question_types.sql` : Migration pour ajouter le support des types de questions et options
-  - Ajout colonne `type` dans la table `question`
-  - Création table `question_option` pour les choix multiples
+- `sql/gogoleform.sql` : structure initiale des tables.
+- `sql/migration_question_types.sql` : migration ajoutant le support des types de questions et des options.
+  - Ajout de la colonne `type` dans la table `question`.
+  - Création de la table `question_option` pour les choix multiples.
 
 ### Autres
-- `style.css` : Styles personnalisés
+- `style.css` : styles personnalisés.
 
 ## Démarrage
 
-1. Importez la structure SQL et les données depuis le dossier `/sql` dans MySQL.
-2. Placez le dossier dans `htdocs` de XAMPP.
-3. Lancez Apache et MySQL via XAMPP.
-4. Accédez à [http://localhost/google-form/html/index.html](http://localhost/google-form/html/index.html) dans votre navigateur.
+1. Importez les fichiers SQL du dossier `/sql` dans votre instance MySQL.
+2. Placez le projet dans le répertoire racine de votre serveur web (ex. `htdocs` pour XAMPP).
+3. Démarrez Apache et MySQL (XAMPP ou autre).
+4. Ouvrez votre navigateur à l’adresse : `http://localhost/google-form/html/index.html`.
 
 ## Librairies utilisées
 
-- [Bootstrap 5](https://getbootstrap.com/)
+- Bootstrap 5 (pour les composants et la mise en page).
 
 ## Sécurité & bonnes pratiques
 
-- Mots de passe hashés (PHP `password_hash`/`password_verify`)
-- Validation et assainissement des entrées côté serveur
-- Requêtes préparées partout (anti-injection SQL)
-- Limitation brute-force sur le login (table `login_attempts`)
-- Authentification requise pour les actions sensibles
-- Envoi sécurisé de `user_id` en POST (body JSON) au lieu de GET (URL)
-- Vérification de la connexion côté client (clé `user_id` dans le localStorage)
-- Les requêtes fetch JS ne partent que si l'utilisateur est authentifié
-- CORS systématique sur tous les endpoints PHP
-- Transactions SQL pour garantir la cohérence des données (création de sondages)
-- Structure de projet organisée pour une meilleure maintenabilité
+- Mots de passe hachés (`password_hash` / `password_verify`).
+- Validation et assainissement des entrées côté serveur.
+- Requêtes préparées pour prévenir les injections SQL.
+- Limitation des tentatives de connexion (table `login_attempts`) pour réduire le risque de bruteforce.
+- Authentification requise pour les actions sensibles.
+- Envoi du `user_id` en POST (corps JSON) plutôt qu’en paramètre d’URL.
+- Vérification de la connexion côté client (ex. `user_id` stocké dans localStorage) avant d’effectuer des requêtes fetch.
+- Headers CORS présents sur les endpoints PHP.
+- Transactions SQL lors de la création de sondages pour garantir la cohérence.
+- Structure du projet organisée pour faciliter la maintenance.
 
 ## Exemple de connexion
 
-Après inscription, connectez-vous avec vos identifiants créés.
+- Après l’inscription, connectez‑vous avec vos identifiants créés.
+- Une fois connecté, la navbar proposera les actions disponibles (Créer un sondage, Se déconnecter, etc.).
 
 ## TODO & améliorations possibles
 
-Voir le fichier `todo.txt` pour les axes d'amélioration sécurité, validation, UX, etc.
+Voir `todo.txt` pour les axes d’amélioration (sécurité renforcée, validations supplémentaires, améliorations UX, tests automatisés, etc.).
