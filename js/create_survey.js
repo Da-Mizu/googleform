@@ -80,6 +80,7 @@ function checkAndAddQuestionBlock() {
         newSelect.innerHTML = `
             <option value="text">Texte libre</option>
             <option value="multiple">Choix multiple</option>
+            <option value="scale">Échelle (0-10)</option>
         `;
         
         const optionsContainer = document.createElement('div');

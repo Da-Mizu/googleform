@@ -65,6 +65,37 @@ if (formId) {
                                 optionDiv.appendChild(label);
                                 li.appendChild(optionDiv);
                             });
+                        } else if (q.type === 'scale') {
+                            // Échelle de notation : boutons de 0 à 10
+                            const scaleContainer = document.createElement('div');
+                            scaleContainer.className = 'd-flex gap-2 mt-3 flex-wrap justify-content-center';
+                            
+                            for (let i = 0; i <= 10; i++) {
+                                const btn = document.createElement('button');
+                                btn.type = 'button';
+                                btn.className = 'btn btn-outline-primary scale-btn';
+                                btn.textContent = i;
+                                btn.setAttribute('data-question-id', q.id);
+                                btn.setAttribute('data-value', i);
+                                btn.style.width = '45px';
+                                btn.style.height = '45px';
+                                
+                                btn.addEventListener('click', function() {
+                                    // Désélectionner tous les autres boutons de cette question
+                                    scaleContainer.querySelectorAll('.scale-btn').forEach(b => {
+                                        b.classList.remove('active');
+                                        b.classList.remove('btn-primary');
+                                        b.classList.add('btn-outline-primary');
+                                    });
+                                    // Sélectionner le bouton cliqué
+                                    this.classList.remove('btn-outline-primary');
+                                    this.classList.add('btn-primary', 'active');
+                                });
+                                
+                                scaleContainer.appendChild(btn);
+                            }
+                            
+                            li.appendChild(scaleContainer);
                         } else {
                             // Texte libre : textarea
                             const textarea = document.createElement('textarea');
@@ -89,9 +120,10 @@ if (formId) {
         document.getElementById('answerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            // Récupérer toutes les réponses (textareas et checkboxes)
+            // Récupérer toutes les réponses (textareas, checkboxes et échelles)
             const textareas = document.querySelectorAll('#questionList textarea[data-question-id]');
             const checkboxGroups = document.querySelectorAll('#questionList input[type="checkbox"][data-question-id]');
+            const scaleButtons = document.querySelectorAll('#questionList .scale-btn.active[data-question-id]');
             
             let hasError = false;
             const processedQuestions = new Set();
@@ -150,6 +182,28 @@ if (formId) {
                     }
                 }
             }
+            
+            // Traiter les échelles de notation
+            for (const scaleBtn of scaleButtons) {
+                const questionId = scaleBtn.getAttribute('data-question-id');
+                if (processedQuestions.has(questionId)) continue;
+                
+                const value = scaleBtn.getAttribute('data-value');
+                try {
+                    const response = await fetch('http://localhost/google-form/php/save_answer.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ question_id: questionId, answer_text: value, user_id: userId })
+                    });
+                    console.log('Envoi de la réponse pour la question ID :', questionId, 'Réponse :', value, 'User ID :', userId);
+                    const result = await response.json();
+                    if (!result.success) hasError = true;
+                    processedQuestions.add(questionId);
+                } catch {
+                    hasError = true;
+                }
+            }
+            
             if (!hasError) {
                 alert('Réponses enregistrées avec succès !');
                 setTimeout(() => {

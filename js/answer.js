@@ -144,6 +144,21 @@ function renderAnswers(questions, searchTerm = '') {
                 }, 100);
             }
             
+            // Afficher la moyenne pour les questions de type échelle
+            if (question.type === 'scale' && filteredAnswers.length > 0) {
+                const values = filteredAnswers.map(a => parseFloat(a.answer_text)).filter(v => !isNaN(v));
+                if (values.length > 0) {
+                    const average = (values.reduce((sum, v) => sum + v, 0) / values.length).toFixed(2);
+                    const avgDiv = document.createElement('div');
+                    avgDiv.className = 'alert alert-info mb-3';
+                    avgDiv.innerHTML = `
+                        <strong>Moyenne :</strong> ${average} / 10 
+                        <small class="text-muted">(${values.length} réponse${values.length > 1 ? 's' : ''})</small>
+                    `;
+                    cardBody.appendChild(avgDiv);
+                }
+            }
+            
             // Afficher la liste des réponses filtrées
             if (filteredAnswers.length > 0) {
                 const answersList = document.createElement('ul');
