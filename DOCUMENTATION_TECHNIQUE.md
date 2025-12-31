@@ -96,16 +96,24 @@ Stocke les utilisateurs de l'application avec chiffrement des données sensibles
 ```sql
 CREATE TABLE `user` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
+<<<<<<< HEAD
   `username` TEXT NOT NULL,          -- Chiffré (enc: v1:...)
   `username_hash` CHAR(64) UNIQUE,   -- HMAC-SHA256 pour recherche
   `password` VARCHAR(255) NOT NULL,  -- Hash bcrypt (password_hash)
   `email` TEXT,                      -- Chiffré (enc:v1:...)
   `email_hash` CHAR(64) UNIQUE       -- HMAC-SHA256 pour recherche
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+=======
+  `username` VARCHAR(50) UNIQUE NOT NULL,
+  `password` VARCHAR(255) NOT NULL,  -- Hash bcrypt
+  `email` VARCHAR(100)
+);
+>>>>>>> parent of a5de0ba (chiffrement)
 ```
 
 **Champs :**
 - `id` : Identifiant unique
+<<<<<<< HEAD
 - `username` : Nom d'utilisateur (stocké chiffré en base)
 - `username_hash` : Hash déterministe HMAC-SHA256 (permet `SELECT ...  WHERE username_hash = ? `)
 - `password` : Mot de passe haché avec `password_hash()` (bcrypt)
@@ -116,6 +124,11 @@ CREATE TABLE `user` (
 - Les données sensibles (username, email) sont chiffrées avec AES-256-CBC
 - Les hashes permettent la recherche sans déchiffrement
 - Le mot de passe utilise bcrypt (résistant aux attaques par force brute)
+=======
+- `username` : Nom d'utilisateur unique
+- `password` : Mot de passe haché avec `password_hash()`
+- `email` : Adresse email
+>>>>>>> parent of a5de0ba (chiffrement)
 
 ---
 
@@ -125,8 +138,13 @@ Représente les sondages/formulaires créés.
 ```sql
 CREATE TABLE `form` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
+<<<<<<< HEAD
   `title` TEXT NOT NULL,            -- Chiffré (enc:v1:...)
   `description` TEXT,                -- Chiffré (enc: v1:...)
+=======
+  `title` VARCHAR(255) NOT NULL,
+  `description` TEXT,
+>>>>>>> parent of a5de0ba (chiffrement)
   `user_id` INT,
   FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -134,9 +152,15 @@ CREATE TABLE `form` (
 
 **Champs :**
 - `id` : Identifiant unique du formulaire
+<<<<<<< HEAD
 - `title` : Titre du sondage (stocké chiffré en base)
 - `description` : Description optionnelle (stockée chiffrée en base)
 - `user_id` : Propriétaire du formulaire (créateur)
+=======
+- `title` : Titre du sondage
+- `description` : Description optionnelle
+- `user_id` : Propriétaire du formulaire
+>>>>>>> parent of a5de0ba (chiffrement)
 
 ---
 
@@ -172,7 +196,7 @@ Options pour les questions à choix multiples.
 CREATE TABLE `question_option` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
   `question_id` INT NOT NULL,
-  `option_text` TEXT NOT NULL,      -- Chiffré (enc:v1:...)
+  `option_text` VARCHAR(255) NOT NULL,
   FOREIGN KEY (`question_id`) REFERENCES `question`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```
@@ -204,8 +228,6 @@ CREATE TABLE `answer` (
   - Valeur(s) séparées par virgule pour `multiple` (ex: "Option 1, Option 3")
   - Nombre de 0 à 10 pour type `scale`
 - `answered_at` : Timestamp de soumission
-
-**Note chiffrement :** `answer_text` est stocké chiffré en base (format `enc:v1:...`) et déchiffré côté API avant d'être renvoyé au frontend.
 
 ---
 
@@ -1211,9 +1233,14 @@ if ($loginSuccess) {
 **Toujours utiliser des requêtes préparées :**
 ```php
 // ✅ Sécurisé
+<<<<<<< HEAD
 $stmt = $pdo->prepare('SELECT * FROM user WHERE username_hash = ?');
 $stmt->execute([lookupHash($username)]);
 $result = $stmt->fetch();
+=======
+$stmt = $pdo->prepare("SELECT * FROM user WHERE username = ?");
+$stmt->execute([$username]);
+>>>>>>> parent of a5de0ba (chiffrement)
 ```
 
 ---
@@ -1314,6 +1341,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 ---
 
+<<<<<<< HEAD
 ### 5. Chiffrement des données (au repos)
 
 Le projet chiffre les champs sensibles **avant l'écriture en base** (AES-256-CBC) et les déchiffre côté API à la lecture.
@@ -1391,6 +1419,9 @@ function lookupHash(string $value): string {
 ---
 
 ### 6. Transactions SQL
+=======
+### 5. Transactions SQL
+>>>>>>> parent of a5de0ba (chiffrement)
 
 **Pour garantir la cohérence des données :**
 ```php
@@ -1479,7 +1510,22 @@ git clone https://github.com/Da-Mizu/google-form. git
 cd google-form
 ```
 
+<<<<<<< HEAD
 #### 2. Importer la base de données
+=======
+2. **Importer la base de données**
+
+3. **Configurer la connexion MySQL**
+Modifier les fichiers PHP (`php/*.php`) si nécessaire :
+```php
+$host = '127.0.0.1';
+$db = 'google-form';
+$user = 'root';
+$password = '';
+```
+
+4. **Démarrer le serveur**
+>>>>>>> parent of a5de0ba (chiffrement)
 ```bash
 # Se connecter à MySQL
 mysql -u root -p
@@ -1495,6 +1541,7 @@ mysql -u root -p google-form < sql/sondage_data.sql
 mysql -u root -p google-form < sql/question_data.sql
 ```
 
+<<<<<<< HEAD
 #### 3. Configurer la connexion MySQL
 Modifier `php/config.php` si nécessaire :
 ```php
@@ -1503,6 +1550,11 @@ $db = 'google-form';
 $user = 'root';
 $pass = '';
 $charset = 'utf8mb4';
+=======
+5. **Accéder à l'application**
+```
+http://localhost/google-form/html/index.html
+>>>>>>> parent of a5de0ba (chiffrement)
 ```
 
 #### 4. Démarrer le serveur

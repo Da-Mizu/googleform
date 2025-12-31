@@ -1,7 +1,32 @@
 <?php
-require_once 'config.php';
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
 
-$pdo = getPDOConnection();
+$host = 'localhost';
+$db = 'google-form';
+$user = 'root';
+$pass = '';
+$charset = 'utf8mb4';
+
+$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+$options = [
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    PDO::ATTR_EMULATE_PREPARES   => false,
+];
+
+try {
+    $pdo = new PDO($dsn, $user, $pass, $options);
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Erreur de connexion à la base']);
+    exit;
+}
 
 $data = json_decode(file_get_contents('php://input'), true);
 
@@ -27,8 +52,8 @@ if (strlen($answer_text) < 1 || strlen($answer_text) > 1000) {
     exit;
 }
 
-$answerEnc = encryptData($answer_text);
 $stmt = $pdo->prepare('INSERT INTO answer (question_id, user_id, answer_text) VALUES (?, ?, ?)');
-$stmt->execute([intval($question_id), $user_id, $answerEnc]);
+$stmt->execute([intval($question_id), $user_id, $answer_text]);
 
+header('Content-Type: application/json');
 echo json_encode(['success' => true]);

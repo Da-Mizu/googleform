@@ -57,7 +57,7 @@ INSERT INTO `answer` (`id`, `question_id`, `user_id`, `answer_text`, `answered_a
 
 CREATE TABLE `form` (
   `id` int(11) NOT NULL,
-  `title` text NOT NULL,
+  `title` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
   `user_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -114,7 +114,7 @@ INSERT INTO `question` (`id`, `form_id`, `question_text`, `type`, `anonymus`) VA
 CREATE TABLE `question_option` (
   `id` int(11) NOT NULL,
   `question_id` int(11) NOT NULL,
-  `option_text` text NOT NULL
+  `option_text` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -154,11 +154,9 @@ INSERT INTO `survey_access` (`id`, `form_id`, `user_id`, `access_type`) VALUES
 
 CREATE TABLE `user` (
   `id` int(11) NOT NULL,
-  `username` text NOT NULL,
-  `username_hash` char(64) DEFAULT NULL,
+  `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `email` text DEFAULT NULL,
-  `email_hash` char(64) DEFAULT NULL
+  `email` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -220,8 +218,6 @@ ALTER TABLE `survey_access`
 --
 ALTER TABLE `user`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `uniq_user_username_hash` (`username_hash`),
-  ADD UNIQUE KEY `uniq_user_email_hash` (`email_hash`),
   ADD UNIQUE KEY `username` (`username`);
 
 --

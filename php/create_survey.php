@@ -1,7 +1,32 @@
 <?php
-require_once 'config.php';
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
+header("Access-Control-Allow-Methods: POST, OPTIONS");
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
 
-$pdo = getPDOConnection();
+$host = 'localhost';
+$db = 'google-form';
+$user = 'root';
+$pass = '';
+$charset = 'utf8mb4';
+
+$dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+$options = [
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    PDO::ATTR_EMULATE_PREPARES   => false,
+];
+
+try {
+    $pdo = new PDO($dsn, $user, $pass, $options);
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode(['error' => 'Erreur de connexion à la base']);
+    exit;
+}
 
 // Récupérer les données JSON
 $input = json_decode(file_get_contents('php://input'), true);
@@ -34,11 +59,9 @@ try {
     // Démarrer une transaction
     $pdo->beginTransaction();
 
-    // Insérer le sondage dans la table form (chiffré)
-    $titleEnc = encryptData($title);
-    $descriptionEnc = $description !== null ? encryptData($description) : null;
+    // Insérer le sondage dans la table form
     $stmt = $pdo->prepare('INSERT INTO form (title, description, user_id) VALUES (?, ?, ?)');
-    $stmt->execute([$titleEnc, $descriptionEnc, $user_id]);
+    $stmt->execute([$title, $description, $user_id]);
     $form_id = $pdo->lastInsertId();
 
     // Insérer chaque question dans la table question
@@ -51,8 +74,7 @@ try {
         $question_anonymus = isset($question['anonymus']) ? intval($question['anonymus']) : 0;
 
         if (!empty($question_text)) {
-            $questionTextEnc = encryptData($question_text);
-            $stmtQuestion->execute([$form_id, $questionTextEnc, $question_type, $question_anonymus]);
+            $stmtQuestion->execute([$form_id, $question_text, $question_type, $question_anonymus]);
             $question_id = $pdo->lastInsertId();
 
             // Si c'est un choix multiple, insérer les options
@@ -60,7 +82,7 @@ try {
                 foreach ($question['options'] as $option_text) {
                     $option_text = trim($option_text);
                     if (!empty($option_text)) {
-                        $stmtOption->execute([$question_id, encryptData($option_text)]);
+                        $stmtOption->execute([$question_id, $option_text]);
                     }
                 }
             }
@@ -70,6 +92,7 @@ try {
     // Valider la transaction
     $pdo->commit();
 
+    header('Content-Type: application/json');
     echo json_encode([
         'success' => true,
         'form_id' => $form_id,
@@ -82,3 +105,4 @@ try {
     echo json_encode(['error' => 'Erreur lors de la création du sondage']);
 }
 
+//test commen
