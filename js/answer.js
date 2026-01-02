@@ -169,15 +169,11 @@ function renderAnswers(questions, searchTerm = '') {
                     answerItem.className = 'list-group-item';
                     
                     if (answer.user_masked) {
-                        // Question anonyme : afficher la réponse mais masquer l'utilisateur
+                        // Question anonyme : afficher la réponse mais masquer l'utilisateur et l'heure
                         answerItem.innerHTML = `
                             <strong>Utilisateur:</strong> <span class="fst-italic">Anonyme</span>
                             <br>
                             <strong>Réponse:</strong> ${answer.answer_text || '<em class="text-muted">Aucune réponse</em>'}
-                            <br>
-                            <small class="text-muted">
-                                ${new Date(answer.answered_at).toLocaleString('fr-FR')}
-                            </small>
                         `;
                     } else {
                         // Question normale : afficher tout
