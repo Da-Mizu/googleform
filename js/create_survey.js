@@ -1,5 +1,25 @@
 // Gestion dynamique des inputs de questions
 const questionsContainer = document.getElementById('questionsContainer');
+const toggleAllAnonymousBtn = document.getElementById('toggleAllAnonymous');
+
+// Fonction pour basculer l'anonymat de toutes les questions
+if (toggleAllAnonymousBtn) {
+    toggleAllAnonymousBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const allCheckboxes = questionsContainer.querySelectorAll('.question-anonymous');
+        
+        // Vérifier si toutes les questions sont déjà anonymes
+        const allChecked = Array.from(allCheckboxes).every(checkbox => checkbox.checked);
+        
+        // Inverser l'état
+        allCheckboxes.forEach(checkbox => {
+            checkbox.checked = !allChecked;
+        });
+        
+        // Mettre à jour le texte du bouton
+        toggleAllAnonymousBtn.textContent = allChecked ? 'Rendre tout anonyme' : 'Rendre tout public';
+    });
+}
 
 function updateQuestionLabels() {
     const questionBlocks = questionsContainer.querySelectorAll('.question-block');
